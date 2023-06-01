@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import "./login.scss";
+
 const Login = () => {
   const [name, setName] = useState("");
   const [nationalID, setNationalID] = useState("");
@@ -24,33 +26,42 @@ const Login = () => {
     }
   };
 
-  const handleRegistration = () => {
-    // Perform registration logic
-    console.log("Register");
-  };
-
   return (
-    <div>
-      <h2>Login</h2>
-      <label>
-        Name:
+    <div className="login-container">
+      <h2 className="login-title">Login</h2>
+      <div className="form-group">
+        <label htmlFor="name" className="form-label">
+          Name:
+        </label>
         <input
           type="text"
+          id="name"
+          className="form-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-      </label>
-      <label>
-        National ID:
+      </div>
+      <div className="form-group">
+        <label htmlFor="nationalID" className="form-label">
+          National ID:
+        </label>
         <input
           type="text"
+          id="nationalID"
+          className="form-input"
           value={nationalID}
           onChange={(e) => setNationalID(e.target.value)}
         />
-      </label>
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleRegistration}>Register</button>
-      <p>{validationMessage}</p>
+      </div>
+      <div className="button-group">
+        <button className="login-button" onClick={handleLogin}>
+          Login
+        </button>
+        <a className="register-button" href="/register">
+          Register
+        </a>
+      </div>
+      <p className="validation-message">{validationMessage}</p>
     </div>
   );
 };
