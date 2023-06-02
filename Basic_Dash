@@ -1,0 +1,72 @@
+import * as firebase from 'firebase/app';
+import 'firebase/storage';
+import 'firebase/firestore';
+
+// Initialize Firebase
+const firebaseConfig = {
+  // your Firebase config here
+};
+firebase.initializeApp(firebaseConfig);
+
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+// Upload a file to Firebase Storage
+async function uploadFile(userId: string, file: File) {
+  const storageRef = storage.ref();
+  const fileRef = storageRef.child(`${userId}/${file.name}`);
+  await fileRef.put(file);
+  // Store metadata in Firestore
+  const metadata = {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    uploadDate: firebase.firestore.Timestamp.now(),
+  };
+  await db.collection('files').doc(file.name).set(metadata);
+}
+
+// Get metadata for a file
+async function getFileMetadata(fileName: string) {
+  const docRef = db.collection('files').doc(fileName);
+  const doc = await docRef.get();
+  return doc.data();
+}
+
+// Delete a file
+async function deleteFile(userId: string, fileName: string) {
+  const fileRef = storage.ref().child(`${userId}/${fileName}`);
+  await fileRef.delete();
+  // Delete metadata from Firestore
+  await db.collection('files').doc(fileName).delete();
+}
+
+// Authenticate a document
+async function authenticateDocument(id: number, UrlDocument: string, documentTitle: string) {
+  const operatorCode = 10003; // your operator code
+  const url = `http://169.51.195.62:30174/api-docs/apis/authenticateDocument/${id}/${UrlDocument}/${documentTitle}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Operator-Code': operatorCode.toString(),
+        // add any other headers required by the API
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // if the API returns JSON data, you can parse it like this:
+    const data = await response.json();
+    console.log(data);
+
+    // if the API doesn't return any data (204 No Content), you can just return true to indicate success:
+    return true;
+  } catch (error) {
+    console.error('Error authenticating document:', error);
+    return false;
+  }
+}
